@@ -3,8 +3,8 @@ package queue
 import (
 	"encoding/json"
 	"fmt"
+
 	"github.com/rabbitmq/amqp091-go"
-	"os"
 )
 
 var ch *amqp091.Channel
@@ -19,12 +19,18 @@ func InitQueue() {
 		panic("❌ Failed to open channel: " + err.Error())
 	}
 
-	err = channel.QueueDeclare(
-		"ghibli_tasks", false, false, false, false, nil,
+	_, err = channel.QueueDeclare(
+		"ghibli_tasks", // name
+		true,           // durable
+		false,          // autoDelete
+		false,          // exclusive
+		false,          // noWait
+		nil,            // arguments
 	)
 	if err != nil {
 		panic("❌ Failed to declare queue: " + err.Error())
 	}
+
 	ch = channel
 	fmt.Println("✅ Connected to RabbitMQ")
 }

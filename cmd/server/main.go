@@ -9,9 +9,12 @@ import (
 	"get-your-ghibli/internal/upload"
 	"get-your-ghibli/pkg/models"
 
+	"get-your-ghibli/internal/queue"
+
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
-	"get-your-ghibli/internal/queue"
+	"get-your-ghibli/internal/gallery"
+	"get-your-ghibli/internal/order"
 )
 
 func main() {
@@ -23,8 +26,10 @@ func main() {
 	db.Init()
 	auth.InitRedis(os.Getenv("REDIS_URL"))
 	db.DB.AutoMigrate(&models.User{})
-
 	db.DB.AutoMigrate(&models.Upload{})
+
+	db.DB.AutoMigrate(&models.GeneratedImage{})
+	db.DB.AutoMigrate(&models.Order{})
 
 	r := gin.Default()
 
@@ -38,12 +43,15 @@ func main() {
 
 	r.POST("/webhook/razorpay", upload.RazorpayWebhookHandler)
 
-
 	protected := r.Group("/")
 	protected.Use(auth.AuthMiddleware())
 	protected.GET("/auth/me", auth.MeHandler)
+	protected.GET("/gallery", gallery.GalleryHandler)
+
 
 	protected.POST("/upload", upload.UploadHandler)
+	protected.POST("/order", order.PlaceOrderHandler)
+
 
 	queue.InitQueue()
 
