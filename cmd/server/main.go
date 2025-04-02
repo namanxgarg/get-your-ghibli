@@ -30,6 +30,8 @@ func main() {
 	})
 
 	r.POST("/auth/request-otp", auth.RequestOTPHandler)
+	r.POST("/auth/verify-otp", auth.VerifyOTPHandler)
+
 
 	log.Println("🚀 Server is running at http://localhost:8080")
 	r.Run(":8080") // listen and serve on 0.0.0.0:8080
